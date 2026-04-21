@@ -33,7 +33,7 @@ export default function Reports() {
               {/* Summary Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Total Orders */}
-                <Card className="p-6 bg-gradient-to-br from-accent/20 to-accent/5 border border-accent">
+                <Card className="p-6 bg-card border border-border">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-muted-foreground mb-2">إجمالي الطلبات</p>
@@ -46,7 +46,7 @@ export default function Reports() {
                 </Card>
 
                 {/* Top Governorate */}
-                <Card className="p-6 bg-gradient-to-br from-accent/20 to-accent/5 border border-accent">
+                <Card className="p-6 bg-card border border-border">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-muted-foreground mb-2">
@@ -64,7 +64,7 @@ export default function Reports() {
               </div>
 
               {/* Governorates Statistics */}
-              <Card className="p-6 bg-card border border-accent">
+              <Card className="p-6 bg-card border border-border">
                 <h2 className="text-2xl font-bold text-foreground mb-6">
                   إحصائيات الطلبات حسب المحافظة
                 </h2>
@@ -77,7 +77,7 @@ export default function Reports() {
                       .map(([governorate, count]) => (
                         <div
                           key={governorate}
-                          className="flex items-center justify-between p-4 bg-background rounded border border-accent/30"
+                          className="flex items-center justify-between p-4 bg-secondary/20 rounded border border-border"
                         >
                           <span className="text-foreground font-medium">
                             {governorate}
@@ -110,7 +110,7 @@ export default function Reports() {
               </Card>
 
               {/* Recent Orders */}
-              <Card className="p-6 bg-card border border-accent">
+              <Card className="p-6 bg-card border border-border">
                 <h2 className="text-2xl font-bold text-foreground mb-6">
                   آخر 10 طلبات
                 </h2>
@@ -120,7 +120,7 @@ export default function Reports() {
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-accent/30">
+                        <tr className="border-b border-border">
                           <th className="text-right p-4 text-foreground font-bold">
                             البريد الإلكتروني
                           </th>
@@ -142,7 +142,7 @@ export default function Reports() {
                         {reportData.recentOrders.map((order, index) => (
                           <tr
                             key={index}
-                            className="border-b border-accent/20 hover:bg-accent/5 transition-colors"
+                            className="border-b border-border hover:bg-secondary/30 transition-colors"
                           >
                             <td className="p-4 text-foreground">
                               {order.userEmail}

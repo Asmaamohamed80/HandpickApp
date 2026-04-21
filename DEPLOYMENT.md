@@ -1,4 +1,4 @@
-# Handpick Production Deployment (Vercel + Supabase)
+# Handpick Production Deployment (Render + Supabase)
 
 ## 1) Supabase Setup
 
@@ -10,9 +10,9 @@
 SUPABASE_DATABASE_URL=postgresql://postgres:<PASSWORD>@db.<PROJECT_REF>.supabase.co:5432/postgres
 ```
 
-## 2) Environment Variables
+## 2) Environment Variables (Render)
 
-Set these in Vercel (**Project -> Settings -> Environment Variables**):
+Set these in Render (**Service -> Environment**):
 
 - `SUPABASE_DATABASE_URL` (required)
 - `JWT_SECRET` (required, long random secret)
@@ -45,24 +45,22 @@ Seed sample products if needed:
 node seed.mjs
 ```
 
-## 4) Vercel Deployment
+## 4) Render Deployment
 
 1. Push repository to GitHub.
-2. Import the repo into Vercel.
-3. Vercel will use:
-   - `vercel.json` for routes/functions
-   - `pnpm build:client` as frontend build command
-   - `dist/public` as static output
-4. Add all env vars in Vercel settings.
-5. Trigger deploy.
+2. Create a new **Web Service** on Render from the repo.
+3. Set:
+   - Build Command: `pnpm install --frozen-lockfile && pnpm build`
+   - Start Command: `pnpm start`
+4. Add all env vars in Render settings.
+5. Deploy.
 
 ## 5) Routing Model
 
-- Frontend SPA served from static build output.
-- Backend API served by serverless function at `api/index.ts`.
+- Frontend SPA served from `dist/public`.
+- Backend API served by the Express server (`dist/index.js`).
 - tRPC endpoint: `/api/trpc`
-- Health endpoint: `/api/health`
-- Database health endpoint: `/api/health/db`
+- Health endpoint: `/api/health` (optional to add)
 
 ## 6) Temporary Auth Bypass (for fast launch)
 
@@ -84,7 +82,7 @@ DEV_AUTH_BYPASS=false
 After deployment, run:
 
 ```bash
-APP_URL=https://your-app.vercel.app pnpm verify:prod
+APP_URL=https://your-app.onrender.com pnpm verify:prod
 ```
 
 This validates:

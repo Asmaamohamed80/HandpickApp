@@ -1,8 +1,16 @@
 import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { InsertUser, users, products, orders, InsertProduct, InsertOrder } from "../drizzle/schema";
+import {
+  InsertUser,
+  users,
+  products,
+  orders,
+  productReviews,
+  InsertProduct,
+  InsertOrder,
+  InsertProductReview,
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
-import type { ProductCategory } from "@shared/const";
 import postgres from "postgres";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -120,7 +128,7 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function getAllProducts(category?: ProductCategory) {
+export async function getAllProducts(category?: string) {
   const db = await getDb();
   if (!db) return [];
   if (category) {
@@ -145,6 +153,20 @@ export async function createProduct(data: InsertProduct) {
   if (!db) throw new Error("Database not available");
   const result = await db.insert(products).values(data);
   return result;
+}
+
+export async function getDistinctBrands() {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.select({ brand: products.brand }).from(products).orderBy(products.brand);
+  return Array.from(new Set(rows.map(row => row.brand).filter(Boolean)));
+}
+
+export async function getDistinctCategories() {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.select({ category: products.category }).from(products).orderBy(products.category);
+  return Array.from(new Set(rows.map(row => row.category).filter(Boolean)));
 }
 
 export async function deleteProduct(id: number) {
@@ -183,6 +205,29 @@ export async function getOrdersByGovernorate() {
     grouped[order.governorate] = (grouped[order.governorate] || 0) + 1;
   });
   return grouped;
+}
+
+export async function getProductReviews(productId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(productReviews)
+    .where(eq(productReviews.productId, productId))
+    .orderBy(desc(productReviews.createdAt));
+}
+
+export async function createProductReview(data: InsertProductReview) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(productReviews).values(data);
+  const result = await db
+    .select()
+    .from(productReviews)
+    .where(eq(productReviews.productId, data.productId))
+    .orderBy(desc(productReviews.createdAt))
+    .limit(1);
+  return result[0] || data;
 }
 
 // TODO: add feature queries here as your schema grows.

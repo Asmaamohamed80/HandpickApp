@@ -23,3 +23,7 @@ export const CATEGORY_NAV_ITEMS: ReadonlyArray<{ slug: string; label: ProductCat
   { slug: "clothing", label: "ملابس" },
   { slug: "home-tools", label: "ادوات منزليه" },
 ];
+
+export function categoryToSlug(category: string): string {
+  return encodeURIComponent(category.trim().toLowerCase().replace(/\s+/g, "-"));
+}

@@ -1,5 +1,4 @@
 import { COOKIE_NAME } from "@shared/const";
-import { PRODUCT_CATEGORIES } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
@@ -13,6 +12,10 @@ import {
   getAllOrders,
   getRecentOrders,
   getOrdersByGovernorate,
+  getDistinctBrands,
+  getDistinctCategories,
+  getProductReviews,
+  createProductReview,
 } from "./db";
 
 export const appRouter = router({
@@ -33,7 +36,7 @@ export const appRouter = router({
       .input(
         z
           .object({
-            category: z.enum(PRODUCT_CATEGORIES).optional(),
+            category: z.string().min(1).optional(),
           })
           .optional()
       )
@@ -43,11 +46,18 @@ export const appRouter = router({
     getById: publicProcedure.input(z.number()).query(async ({ input }) => {
       return getProductById(input);
     }),
+    brands: publicProcedure.query(async () => {
+      return getDistinctBrands();
+    }),
+    categories: publicProcedure.query(async () => {
+      return getDistinctCategories();
+    }),
     create: protectedProcedure
       .input(
         z.object({
           name: z.string().min(1),
-          category: z.enum(PRODUCT_CATEGORIES),
+          brand: z.string().min(1),
+          category: z.string().min(1),
           price: z.string(),
           rating: z.string().optional(),
           description: z.string().optional(),
@@ -60,6 +70,7 @@ export const appRouter = router({
         }
         return createProduct({
           name: input.name,
+          brand: input.brand,
           category: input.category,
           price: input.price,
           rating: input.rating || "4.5",
@@ -72,6 +83,24 @@ export const appRouter = router({
         throw new Error("Only admins can delete products");
       }
       return deleteProduct(input);
+    }),
+    reviews: router({
+      list: publicProcedure.input(z.number()).query(async ({ input }) => {
+        return getProductReviews(input);
+      }),
+      create: publicProcedure
+        .input(
+          z.object({
+            productId: z.number(),
+            reviewerName: z.string().min(2),
+            reviewerEmail: z.string().email().optional(),
+            rating: z.string(),
+            comment: z.string().min(5),
+          })
+        )
+        .mutation(async ({ input }) => {
+          return createProductReview(input);
+        }),
     }),
   }),
 

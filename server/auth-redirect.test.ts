@@ -71,6 +71,7 @@ describe("Authentication and Public Access", () => {
       try {
         await caller.products.create({
           name: "Test",
+          brand: "Test Brand",
           category: "عطور",
           price: "100",
         });

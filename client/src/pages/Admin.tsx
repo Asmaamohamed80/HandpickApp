@@ -4,14 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { Header } from "@/components/Header";
-import { PRODUCT_CATEGORIES } from "@shared/const";
-import type { ProductCategory } from "@shared/const";
 
 export default function Admin() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    category: "" as ProductCategory | "",
+    brand: "",
+    category: "",
     price: "",
     rating: "4.5",
     description: "",
@@ -19,15 +18,15 @@ export default function Admin() {
   });
 
   const { data: products, isLoading, refetch } = trpc.products.list.useQuery();
+  const { data: brands = [] } = trpc.products.brands.useQuery();
+  const { data: categories = [] } = trpc.products.categories.useQuery();
   const createProductMutation = trpc.products.create.useMutation();
   const deleteProductMutation = trpc.products.delete.useMutation();
-
-  const categories = PRODUCT_CATEGORIES;
 
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.category || !formData.price) {
+    if (!formData.name || !formData.brand || !formData.category || !formData.price) {
       alert("يرجى ملء جميع الحقول المطلوبة");
       return;
     }
@@ -35,6 +34,7 @@ export default function Admin() {
     try {
       await createProductMutation.mutateAsync({
         name: formData.name,
+        brand: formData.brand,
         category: formData.category,
         price: formData.price,
         rating: formData.rating,
@@ -44,6 +44,7 @@ export default function Admin() {
 
       setFormData({
         name: "",
+        brand: "",
         category: "",
         price: "",
         rating: "4.5",
@@ -90,7 +91,7 @@ export default function Admin() {
 
           {/* Add Product Form */}
           {showAddForm && (
-            <Card className="mb-8 p-6 bg-card border border-accent">
+            <Card className="mb-8 p-6 bg-card border border-border">
               <h3 className="text-xl font-bold text-foreground mb-6">
                 إضافة منتج جديد
               </h3>
@@ -105,33 +106,51 @@ export default function Admin() {
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
-                    className="w-full px-4 py-2 bg-background text-foreground border border-accent rounded"
+                    className="w-full px-4 py-2 bg-background text-foreground border border-border rounded"
                     placeholder="اسم المنتج"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
+                    <label className="block text-foreground mb-2">العلامة التجارية *</label>
+                    <input
+                      type="text"
+                      list="brands-list"
+                      value={formData.brand}
+                      onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                      className="w-full px-4 py-2 bg-background text-foreground border border-border rounded"
+                      placeholder="مثال: Dior"
+                    />
+                    <datalist id="brands-list">
+                      {brands.map((brand) => (
+                        <option key={brand} value={brand} />
+                      ))}
+                    </datalist>
+                  </div>
+
+                  <div>
                     <label className="block text-foreground mb-2">
                       الفئة *
                     </label>
-                    <select
+                    <input
+                      type="text"
+                      list="categories-list"
                       value={formData.category}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
-                          category: e.target.value as ProductCategory | "",
+                          category: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 bg-background text-foreground border border-accent rounded"
-                    >
-                      <option value="">اختر الفئة</option>
+                      className="w-full px-4 py-2 bg-background text-foreground border border-border rounded"
+                      placeholder="مثال: عطور"
+                    />
+                    <datalist id="categories-list">
                       {categories.map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat}
-                        </option>
+                        <option key={cat} value={cat} />
                       ))}
-                    </select>
+                    </datalist>
                   </div>
 
                   <div>
@@ -145,7 +164,7 @@ export default function Admin() {
                       onChange={(e) =>
                         setFormData({ ...formData, price: e.target.value })
                       }
-                      className="w-full px-4 py-2 bg-background text-foreground border border-accent rounded"
+                      className="w-full px-4 py-2 bg-background text-foreground border border-border rounded"
                       placeholder="السعر"
                     />
                   </div>
@@ -164,7 +183,7 @@ export default function Admin() {
                     onChange={(e) =>
                       setFormData({ ...formData, rating: e.target.value })
                     }
-                    className="w-full px-4 py-2 bg-background text-foreground border border-accent rounded"
+                    className="w-full px-4 py-2 bg-background text-foreground border border-border rounded"
                   />
                 </div>
 
@@ -177,7 +196,7 @@ export default function Admin() {
                     onChange={(e) =>
                       setFormData({ ...formData, description: e.target.value })
                     }
-                    className="w-full px-4 py-2 bg-background text-foreground border border-accent rounded"
+                    className="w-full px-4 py-2 bg-background text-foreground border border-border rounded"
                     rows={3}
                     placeholder="وصف المنتج"
                   />
@@ -193,7 +212,7 @@ export default function Admin() {
                     onChange={(e) =>
                       setFormData({ ...formData, imageUrl: e.target.value })
                     }
-                    className="w-full px-4 py-2 bg-background text-foreground border border-accent rounded"
+                    className="w-full px-4 py-2 bg-background text-foreground border border-border rounded"
                     placeholder="https://example.com/image.jpg"
                   />
                 </div>
@@ -241,14 +260,14 @@ export default function Admin() {
               {products.map((product) => (
                 <Card
                   key={product.id}
-                  className="p-6 bg-card border border-accent flex justify-between items-center"
+                  className="p-6 bg-card border border-border flex justify-between items-center"
                 >
                   <div className="flex-1">
                     <h4 className="text-lg font-bold text-foreground">
                       {product.name}
                     </h4>
                     <p className="text-sm text-muted-foreground">
-                      {product.category} - {product.price} جنيه
+                      {product.brand} - {product.category} - {product.price} جنيه
                     </p>
                     {product.description && (
                       <p className="text-sm text-muted-foreground mt-2">

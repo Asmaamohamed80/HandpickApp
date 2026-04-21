@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { LogOut, LogIn } from "lucide-react";
 import { useLocation } from "wouter";
-import { getLoginUrl } from "@/const";
+import { getLoginUrl, isAuthConfigured } from "@/const";
 
 export function Header() {
   const [location, navigate] = useLocation();
@@ -13,15 +13,19 @@ export function Header() {
     await logoutMutation?.();
     navigate("/");
   };
+  const authReady = isAuthConfigured();
 
   return (
     <header className="header-elegant sticky top-0 z-50">
       <div className="container flex justify-between items-center">
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-          <div className="w-10 h-10 bg-gradient-to-br from-green-300 to-green-400 rounded-lg flex items-center justify-center shadow-lg">
-            <span className="text-2xl font-bold text-white">R</span>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm bg-accent/15 border border-accent/30">
+            <span className="text-xl font-bold text-accent">H</span>
           </div>
-          <h1 className="text-3xl font-bold text-foreground">ريحانة</h1>
+          <div className="leading-tight">
+            <h1 className="text-3xl font-bold text-foreground">Handpick</h1>
+            <p className="text-sm text-muted-foreground">منتقى بعناية</p>
+          </div>
         </div>
 
         <nav className="flex items-center gap-4">
@@ -55,7 +59,7 @@ export function Header() {
                 تسجيل الخروج
               </Button>
             </div>
-          ) : (
+          ) : authReady ? (
             <Button
               onClick={() => (window.location.href = getLoginUrl())}
               className="btn-primary flex items-center gap-2"
@@ -63,6 +67,8 @@ export function Header() {
               <LogIn className="w-4 h-4" />
               تسجيل الدخول
             </Button>
+          ) : (
+            <span className="text-sm text-muted-foreground">تسجيل الدخول غير متاح حالياً</span>
           )}
         </nav>
       </div>

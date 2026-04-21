@@ -5,15 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Loader2, Star } from "lucide-react";
 import { Link, useLocation, useRoute } from "wouter";
-import { CATEGORY_NAV_ITEMS } from "@shared/const";
+import { categoryToSlug } from "@shared/const";
 
 export default function CategoryPage() {
   const [, navigate] = useLocation();
   const [match, params] = useRoute("/categories/:slug");
-  const selectedCategory = CATEGORY_NAV_ITEMS.find((item) => item.slug === params?.slug);
+  const { data: categories = [] } = trpc.products.categories.useQuery();
+  const selectedCategory = categories.find((item) => categoryToSlug(item) === params?.slug);
 
   const { data: products, isLoading } = trpc.products.list.useQuery(
-    selectedCategory ? { category: selectedCategory.label } : undefined,
+    selectedCategory ? { category: selectedCategory } : undefined,
     { enabled: Boolean(match && selectedCategory) }
   );
   const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
@@ -61,7 +62,7 @@ export default function CategoryPage() {
         whatsappNumber: formData.whatsappNumber,
       });
 
-      const message = `مرحباً ريحانة 🌿\nأريد طلب المنتج: ${product.name}\n\nالعميل: ${formData.email}\nالمحافظة: ${formData.governorate}\nالسعر: ${product.price} جنيه`;
+      const message = `مرحباً Handpick_منتقى بعناية 🌿\nأريد طلب المنتج: ${product.name}\n\nالعميل: ${formData.email}\nالمحافظة: ${formData.governorate}\nالسعر: ${product.price} جنيه`;
       const whatsappUrl = `https://wa.me/201551561398?text=${encodeURIComponent(message)}`;
       window.location.href = whatsappUrl;
 
@@ -94,7 +95,7 @@ export default function CategoryPage() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <section className="py-10 bg-gradient-to-b from-accent/10 to-transparent">
+      <section className="py-10 bg-secondary/40 border-b border-border">
         <div className="container">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
@@ -102,9 +103,9 @@ export default function CategoryPage() {
                 <Link href="/" className="hover:text-accent transition-colors">
                   الرئيسية
                 </Link>{" "}
-                / {selectedCategory.label}
+                / {selectedCategory}
               </p>
-              <h2 className="text-3xl font-bold text-foreground">قسم {selectedCategory.label}</h2>
+              <h2 className="text-3xl font-bold text-foreground">قسم {selectedCategory}</h2>
             </div>
             <Button className="btn-secondary" onClick={() => navigate("/")}>
               كل الأقسام
@@ -132,6 +133,9 @@ export default function CategoryPage() {
                   )}
                   <div className="product-content">
                     <h4 className="product-name">{product.name}</h4>
+                    <p className="text-sm font-medium text-foreground/80 mb-1">
+                      العلامة التجارية: {product.brand}
+                    </p>
                     <p className="text-sm text-muted-foreground mb-2">{product.category}</p>
                     <div className="flex items-center gap-2 mb-3">
                       <Star className="w-4 h-4 fill-accent text-accent" />
@@ -141,7 +145,7 @@ export default function CategoryPage() {
                     <p className="product-description">{product.description}</p>
 
                     {selectedProduct === product.id ? (
-                      <div className="space-y-3 mt-4 p-4 bg-card rounded border border-accent">
+                      <div className="space-y-3 mt-4 p-4 bg-secondary/30 rounded border border-border">
                         <input
                           type="email"
                           placeholder="بريدك الإلكتروني"
@@ -152,7 +156,7 @@ export default function CategoryPage() {
                               email: e.target.value,
                             })
                           }
-                          className="w-full px-3 py-2 bg-background text-foreground border border-accent rounded"
+                          className="w-full px-3 py-2 bg-background text-foreground border border-border rounded"
                         />
                         <select
                           value={formData.governorate}
@@ -162,7 +166,7 @@ export default function CategoryPage() {
                               governorate: e.target.value,
                             })
                           }
-                          className="w-full px-3 py-2 bg-background text-foreground border border-accent rounded"
+                          className="w-full px-3 py-2 bg-background text-foreground border border-border rounded"
                         >
                           <option value="">اختر المحافظة</option>
                           {governorates.map((gov) => (
@@ -181,7 +185,7 @@ export default function CategoryPage() {
                               whatsappNumber: e.target.value,
                             })
                           }
-                          className="w-full px-3 py-2 bg-background text-foreground border border-accent rounded"
+                          className="w-full px-3 py-2 bg-background text-foreground border border-border rounded"
                         />
                         <div className="flex gap-2">
                           <Button
@@ -207,12 +211,20 @@ export default function CategoryPage() {
                         </div>
                       </div>
                     ) : (
-                      <Button
-                        onClick={() => setSelectedProduct(product.id)}
-                        className="btn-primary w-full mt-4"
-                      >
-                        طلب الآن
-                      </Button>
+                      <div className="grid grid-cols-2 gap-2 mt-4">
+                        <Button
+                          onClick={() => setSelectedProduct(product.id)}
+                          className="btn-primary w-full"
+                        >
+                          طلب الآن
+                        </Button>
+                        <Button
+                          onClick={() => navigate(`/products/${product.id}`)}
+                          className="btn-secondary w-full"
+                        >
+                          مراجعات المنتج
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </Card>

@@ -54,6 +54,7 @@ describe("Access Control and Protection", () => {
 
       const result = await caller.products.create({
         name: "Test Product",
+        brand: "Test Brand",
         category: "عطور",
         price: "100",
       });
@@ -68,6 +69,7 @@ describe("Access Control and Protection", () => {
       try {
         await caller.products.create({
           name: "Test Product",
+          brand: "Test Brand",
           category: "عطور",
           price: "100",
         });
@@ -84,6 +86,7 @@ describe("Access Control and Protection", () => {
       try {
         await caller.products.create({
           name: "Test Product",
+          brand: "Test Brand",
           category: "عطور",
           price: "100",
         });

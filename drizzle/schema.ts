@@ -40,6 +40,7 @@ export type InsertUser = typeof users.$inferInsert;
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  brand: varchar("brand", { length: 120 }).notNull(),
   category: varchar("category", { length: 100 }).notNull(),
   price: numeric("price", { precision: 10, scale: 2 }).notNull(),
   rating: numeric("rating", { precision: 3, scale: 1 }).default("4.5"),
@@ -51,6 +52,20 @@ export const products = pgTable("products", {
 
 export type Product = typeof products.$inferSelect;
 export type InsertProduct = typeof products.$inferInsert;
+
+// Product reviews table
+export const productReviews = pgTable("product_reviews", {
+  id: serial("id").primaryKey(),
+  productId: integer("productId").notNull(),
+  reviewerName: varchar("reviewerName", { length: 120 }).notNull(),
+  reviewerEmail: varchar("reviewerEmail", { length: 320 }),
+  rating: numeric("rating", { precision: 2, scale: 1 }).notNull(),
+  comment: text("comment").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ProductReview = typeof productReviews.$inferSelect;
+export type InsertProductReview = typeof productReviews.$inferInsert;
 
 // Orders table
 export const orders = pgTable("orders", {

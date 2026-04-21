@@ -70,6 +70,7 @@ describe("Products Router", () => {
 
     const result = await caller.products.create({
       name: "Test Product",
+      brand: "Test Brand",
       category: "عطور",
       price: "100",
       rating: "4.5",
@@ -87,6 +88,7 @@ describe("Products Router", () => {
     try {
       await caller.products.create({
         name: "Test Product",
+        brand: "Test Brand",
         category: "عطور",
         price: "100",
       });

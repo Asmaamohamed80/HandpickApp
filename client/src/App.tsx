@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Admin from "./pages/Admin";
 import Reports from "./pages/Reports";
 import CategoryPage from "./pages/CategoryPage";
+import ProductReviewsPage from "./pages/ProductReviewsPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 function Router() {
@@ -16,6 +17,7 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/categories/:slug"} component={CategoryPage} />
+      <Route path={"/products/:id"} component={ProductReviewsPage} />
       <Route path={"/admin"}>
         <ProtectedRoute requiredRole="admin">
           <Admin />

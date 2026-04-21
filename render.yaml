@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: handpick-app
+    env: node
+    buildCommand: pnpm install --frozen-lockfile && pnpm build
+    startCommand: pnpm start
+    autoDeploy: true
