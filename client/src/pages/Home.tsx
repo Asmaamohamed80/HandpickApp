@@ -73,13 +73,13 @@ export default function Home() {
       <Header />
 
       {/* Hero Section */}
-      <section className="py-12 bg-secondary/40 border-b border-border">
+      <section className="py-12 bg-background border-b border-border">
         <div className="container text-center">
-          <h2 className="text-4xl font-bold text-foreground mb-4">
-            عطور وعناية بالبشرة فاخرة
+          <h2 className="text-4xl font-bold text-accent mb-4">
+            Handpick - منتقى بعناية
           </h2>
           <p className="text-xl text-muted-foreground">
-            اختر من مجموعتنا الفاخرة من العطور ومنتجات العناية بالبشرة الطبيعية
+            اختر من مجموعتنا المنتقاة بعناية من أفضل المنتجات الفاخرة والطبيعية
           </p>
         </div>
       </section>

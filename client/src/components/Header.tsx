@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { LogOut, LogIn } from "lucide-react";
 import { useLocation } from "wouter";
-import { getLoginUrl, isAuthConfigured } from "@/const";
+import { isSupabaseConfigured, loginWithGithub } from "@/lib/supabase";
 
 export function Header() {
   const [location, navigate] = useLocation();
@@ -13,7 +13,7 @@ export function Header() {
     await logoutMutation?.();
     navigate("/");
   };
-  const authReady = isAuthConfigured();
+  const authReady = isSupabaseConfigured;
 
   return (
     <header className="header-elegant sticky top-0 z-50">
@@ -59,16 +59,23 @@ export function Header() {
                 تسجيل الخروج
               </Button>
             </div>
-          ) : authReady ? (
+          ) : (
             <Button
-              onClick={() => (window.location.href = getLoginUrl())}
+              onClick={() => {
+                loginWithGithub().catch((error) => {
+                  console.error("[Auth] GitHub login failed", error);
+                  if (!authReady) {
+                    alert("تسجيل الدخول غير مُفعّل بعد. أضف متغيرات Supabase Auth في Render.");
+                    return;
+                  }
+                  alert("تعذر بدء تسجيل الدخول حالياً");
+                });
+              }}
               className="btn-primary flex items-center gap-2"
             >
               <LogIn className="w-4 h-4" />
               تسجيل الدخول
             </Button>
-          ) : (
-            <span className="text-sm text-muted-foreground">تسجيل الدخول غير متاح حالياً</span>
           )}
         </nav>
       </div>

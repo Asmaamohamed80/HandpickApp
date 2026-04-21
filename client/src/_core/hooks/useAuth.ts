@@ -1,4 +1,4 @@
-import { getLoginUrl } from "@/const";
+import { supabase } from "@/lib/supabase";
 import { trpc } from "@/lib/trpc";
 import { TRPCClientError } from "@trpc/client";
 import { useCallback, useEffect, useMemo } from "react";
@@ -9,7 +9,7 @@ type UseAuthOptions = {
 };
 
 export function useAuth(options?: UseAuthOptions) {
-  const { redirectOnUnauthenticated = false, redirectPath = getLoginUrl() } =
+  const { redirectOnUnauthenticated = false, redirectPath = "/" } =
     options ?? {};
   const utils = trpc.useUtils();
 
@@ -36,6 +36,7 @@ export function useAuth(options?: UseAuthOptions) {
       }
       throw error;
     } finally {
+      await supabase.auth.signOut();
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
     }

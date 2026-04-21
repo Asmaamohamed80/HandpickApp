@@ -57,33 +57,33 @@ body {
 }
 
 :root {
-  --primary: #5f7f3a;
+  --primary: #6e8b3d;
   --primary-foreground: #ffffff;
   --sidebar-primary: #5f7f3a;
   --sidebar-primary-foreground: #ffffff;
-  --chart-1: #5f7f3a;
-  --chart-2: #73984a;
-  --chart-3: #8aaa63;
-  --chart-4: #a3bc7f;
-  --chart-5: #bccfa0;
+  --chart-1: #6e8b3d;
+  --chart-2: #7f9a52;
+  --chart-3: #8fab66;
+  --chart-4: #a8be84;
+  --chart-5: #c2d4a6;
   --radius: 0.65rem;
-  --background: #f4f3ee;
-  --foreground: #2f3328;
+  --background: #f7f7f3;
+  --foreground: #31382a;
   --card: #ffffff;
   --card-foreground: #2f3328;
   --popover: #ffffff;
   --popover-foreground: #2f3328;
-  --secondary: #e9e8df;
-  --secondary-foreground: #3a4030;
-  --muted: #d7d8cc;
+  --secondary: #f1f2ea;
+  --secondary-foreground: #3d4732;
+  --muted: #dde1d0;
   --muted-foreground: #5f6553;
-  --accent: #5f7f3a;
+  --accent: #6e8b3d;
   --accent-foreground: #ffffff;
   --destructive: #b45454;
   --destructive-foreground: #ffffff;
-  --border: #d9dccf;
-  --input: #d9dccf;
-  --ring: #6f9145;
+  --border: #d7dcc8;
+  --input: #d7dcc8;
+  --ring: #7c9b49;
   --sidebar: #ffffff;
   --sidebar-foreground: #2f3328;
   --sidebar-accent: #5f7f3a;
@@ -193,12 +193,13 @@ body {
 /* Olive and cream brand styles */
 .product-card {
   @apply bg-card rounded-lg overflow-hidden transition-all duration-300;
-  box-shadow: 0 4px 14px rgba(95, 127, 58, 0.12);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(110, 139, 61, 0.08);
 }
 
 .product-card:hover {
-  box-shadow: 0 10px 24px rgba(95, 127, 58, 0.2);
-  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(110, 139, 61, 0.14);
+  transform: translateY(-2px);
 }
 
 .product-image {
@@ -226,17 +227,17 @@ body {
 }
 
 .btn-primary {
-  @apply bg-accent text-accent-foreground px-6 py-2 rounded-lg font-bold hover:opacity-90 transition-opacity;
+  @apply bg-accent text-accent-foreground px-6 py-2 rounded-xl font-bold hover:opacity-90 transition-opacity;
 }
 
 .btn-secondary {
-  @apply bg-card text-foreground border border-accent px-6 py-2 rounded-lg font-bold hover:bg-accent hover:text-accent-foreground transition-all;
+  @apply bg-card text-foreground border border-border px-6 py-2 rounded-xl font-bold hover:bg-secondary transition-all;
 }
 
 .header-elegant {
   background: #ffffff;
   border-bottom: 1px solid var(--border);
-  @apply text-foreground py-4 shadow-sm;
+  @apply text-foreground py-3 shadow-none;
 }
 
 h1, h2, h3, h4, h5, h6 {
