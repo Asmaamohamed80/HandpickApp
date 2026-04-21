@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 const supabaseUrl =
   import.meta.env.VITE_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL || "";
@@ -9,15 +9,21 @@ const supabaseKey =
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey);
 
-export const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-});
+/**
+ * Only create a real client when env vars exist.
+ * `createClient("", "")` throws at import time in production → white screen.
+ */
+export const supabase: SupabaseClient | null = isSupabaseConfigured
+  ? createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+      },
+    })
+  : null;
 
 export async function loginWithGithub() {
-  if (!isSupabaseConfigured) {
+  if (!supabase) {
     throw new Error("Supabase auth is not configured");
   }
 
@@ -29,5 +35,11 @@ export async function loginWithGithub() {
 
   if (error) {
     throw error;
+  }
+}
+
+export async function signOutSupabase() {
+  if (supabase) {
+    await supabase.auth.signOut();
   }
 }

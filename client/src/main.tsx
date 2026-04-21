@@ -53,18 +53,25 @@ const trpcClient = trpc.createClient({
       url: "/api/trpc",
       transformer: superjson,
       fetch(input, init) {
-        return supabase.auth.getSession().then(({ data }) => {
-          const token = data.session?.access_token;
+        const doFetch = (token?: string) => {
           const headers = new Headers(init?.headers ?? {});
           if (token) {
             headers.set("Authorization", `Bearer ${token}`);
           }
-
           return globalThis.fetch(input, {
             ...(init ?? {}),
             credentials: "include",
             headers,
           });
+        };
+
+        if (!supabase) {
+          return Promise.resolve(doFetch());
+        }
+
+        return supabase.auth.getSession().then(({ data }) => {
+          const token = data.session?.access_token;
+          return doFetch(token);
         });
       },
     }),
