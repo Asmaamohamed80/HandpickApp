@@ -5,7 +5,7 @@ import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import App from "./App";
-import { isSupabaseConfigured, loginWithGithub, supabase } from "./lib/supabase";
+import { ensureSupabase, loginWithGithub } from "./lib/supabase";
 import "./index.css";
 
 const queryClient = new QueryClient();
@@ -19,15 +19,13 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (!isUnauthorized) return;
 
   // Only redirect if trying to access protected routes
-  const protectedRoutes = ["/admin", "/reports"];
+  const protectedRoutes = ["/control", "/admin", "/reports"];
   const isProtectedRoute = protectedRoutes.some(route => window.location.pathname.startsWith(route));
   
   if (isProtectedRoute) {
-    if (isSupabaseConfigured) {
-      loginWithGithub().catch((error) => {
-        console.error("[Auth] Redirect to login failed", error);
-      });
-    }
+    loginWithGithub().catch((error) => {
+      console.error("[Auth] Redirect to login failed", error);
+    });
   }
 };
 
@@ -65,13 +63,12 @@ const trpcClient = trpc.createClient({
           });
         };
 
-        if (!supabase) {
-          return Promise.resolve(doFetch());
-        }
-
-        return supabase.auth.getSession().then(({ data }) => {
-          const token = data.session?.access_token;
-          return doFetch(token);
+        return ensureSupabase().then((s) => {
+          if (!s) return doFetch();
+          return s.auth.getSession().then(({ data }) => {
+            const token = data.session?.access_token;
+            return doFetch(token);
+          });
         });
       },
     }),

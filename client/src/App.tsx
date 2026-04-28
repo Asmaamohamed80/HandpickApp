@@ -18,6 +18,11 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/categories/:slug"} component={CategoryPage} />
       <Route path={"/products/:id"} component={ProductReviewsPage} />
+      <Route path={"/control"}>
+        <ProtectedRoute requiredRole="admin">
+          <Admin />
+        </ProtectedRoute>
+      </Route>
       <Route path={"/admin"}>
         <ProtectedRoute requiredRole="admin">
           <Admin />

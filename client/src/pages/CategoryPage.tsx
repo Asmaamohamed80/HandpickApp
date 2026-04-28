@@ -10,7 +10,7 @@ import { categoryToSlug } from "@shared/const";
 export default function CategoryPage() {
   const [, navigate] = useLocation();
   const [match, params] = useRoute("/categories/:slug");
-  const { data: categories = [] } = trpc.products.categories.useQuery();
+  const { data: categories = [], isLoading: isCategoriesLoading } = trpc.products.categories.useQuery();
   const selectedCategory = categories.find((item) => categoryToSlug(item) === params?.slug);
 
   const { data: products, isLoading } = trpc.products.list.useQuery(
@@ -73,6 +73,19 @@ export default function CategoryPage() {
       alert("حدث خطأ في إنشاء الطلب");
     }
   };
+
+  if (isCategoriesLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <section className="py-12">
+          <div className="container flex justify-center items-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-accent" />
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   if (!selectedCategory) {
     return (

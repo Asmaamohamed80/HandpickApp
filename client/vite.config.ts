@@ -10,6 +10,10 @@ const __dirname = path.dirname(__filename);
 // https://vitejs.dev/config/
 export default defineConfig({
   root: 'client',
+  /** Load `.env.local` from repo root (same file the Node server uses). */
+  envDir: path.resolve(__dirname, '..'),
+  /** Allow NEXT_PUBLIC_* (common with Supabase docs) to be embedded like VITE_* */
+  envPrefix: ["VITE_", "NEXT_PUBLIC_"],
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {

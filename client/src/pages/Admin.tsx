@@ -4,8 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { Header } from "@/components/Header";
+import { useLocation } from "wouter";
+import { categoryToSlug } from "@shared/const";
 
 export default function Admin() {
+  const [, navigate] = useLocation();
+  const utils = trpc.useUtils();
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -17,9 +21,9 @@ export default function Admin() {
     imageUrl: "",
   });
 
-  const { data: products, isLoading, refetch } = trpc.products.list.useQuery();
+  const { data: products, isLoading } = trpc.products.list.useQuery();
   const { data: brands = [] } = trpc.products.brands.useQuery();
-  const { data: categories = [] } = trpc.products.categories.useQuery();
+  const { data: categories = [], isLoading: isCategoriesLoading } = trpc.products.categories.useQuery();
   const createProductMutation = trpc.products.create.useMutation();
   const deleteProductMutation = trpc.products.delete.useMutation();
 
@@ -42,6 +46,12 @@ export default function Admin() {
         imageUrl: formData.imageUrl,
       });
 
+      await Promise.all([
+        utils.products.list.invalidate(),
+        utils.products.categories.invalidate(),
+        utils.products.brands.invalidate(),
+      ]);
+
       setFormData({
         name: "",
         brand: "",
@@ -52,7 +62,6 @@ export default function Admin() {
         imageUrl: "",
       });
       setShowAddForm(false);
-      refetch();
     } catch (error) {
       console.error("Error adding product:", error);
       alert("حدث خطأ في إضافة المنتج");
@@ -63,7 +72,11 @@ export default function Admin() {
     if (confirm("هل تريد حذف هذا المنتج؟")) {
       try {
         await deleteProductMutation.mutateAsync(productId);
-        refetch();
+        await Promise.all([
+          utils.products.list.invalidate(),
+          utils.products.categories.invalidate(),
+          utils.products.brands.invalidate(),
+        ]);
       } catch (error) {
         console.error("Error deleting product:", error);
         alert("حدث خطأ في حذف المنتج");
@@ -88,6 +101,32 @@ export default function Admin() {
               {showAddForm ? "إغلاق النموذج" : "إضافة منتج جديد"}
             </Button>
           </div>
+
+          <Card className="mb-8 p-6 bg-card border border-border">
+            <h3 className="text-xl font-bold text-foreground mb-4">الأقسام الحالية</h3>
+            {isCategoriesLoading ? (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="w-4 h-4 animate-spin text-accent" />
+                جاري تحميل الأقسام...
+              </div>
+            ) : categories.length === 0 ? (
+              <p className="text-muted-foreground">لا توجد أقسام بعد. أضف منتجًا بفئة جديدة لتظهر هنا.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {categories.map((category) => (
+                  <Button
+                    key={category}
+                    type="button"
+                    className="btn-secondary justify-between"
+                    onClick={() => navigate(`/categories/${categoryToSlug(category)}`)}
+                  >
+                    <span>{category}</span>
+                    <span className="text-xs opacity-70">فتح القسم</span>
+                  </Button>
+                ))}
+              </div>
+            )}
+          </Card>
 
           {/* Add Product Form */}
           {showAddForm && (

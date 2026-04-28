@@ -1,4 +1,4 @@
-import "dotenv/config";
+import "./loadEnv";
 import express from "express";
 import { createServer } from "http";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
@@ -26,6 +26,24 @@ async function startServer() {
       return;
     }
     res.status(200).json(status);
+  });
+  /** Public keys for browser Supabase client (anon key is safe to expose). */
+  app.get("/api/client-config", (_req, res) => {
+    const supabaseUrl =
+      process.env.SUPABASE_URL?.trim() ||
+      process.env.VITE_SUPABASE_URL?.trim() ||
+      process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ||
+      "";
+    const supabaseAnonKey =
+      process.env.SUPABASE_ANON_KEY?.trim() ||
+      process.env.SUPABASE_PUBLISHABLE_KEY?.trim() ||
+      process.env.VITE_SUPABASE_ANON_KEY?.trim() ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() ||
+      process.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim() ||
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ||
+      "";
+    res.setHeader("Cache-Control", "no-store");
+    res.status(200).json({ supabaseUrl, supabaseAnonKey });
   });
   // tRPC API
   app.use(

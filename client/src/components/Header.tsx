@@ -2,19 +2,19 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { LogOut, LogIn } from "lucide-react";
 import { useLocation } from "wouter";
-import { isSupabaseConfigured, loginWithGithub } from "@/lib/supabase";
+import { loginWithGithub } from "@/lib/supabase";
 
 export function Header() {
   const [location, navigate] = useLocation();
   const { user, logout } = useAuth();
   const logoutMutation = useAuth().logout;
+  const isControlPage = location === "/control" || location === "/admin";
+  const isReportsPage = location === "/reports";
 
   const handleLogout = async () => {
     await logoutMutation?.();
     navigate("/");
   };
-  const authReady = isSupabaseConfigured;
-
   return (
     <header className="header-elegant sticky top-0 z-50">
       <div className="container flex justify-between items-center">
@@ -32,16 +32,16 @@ export function Header() {
           {user?.role === "admin" && (
             <>
               <Button
-                onClick={() => navigate("/admin")}
-                variant={location === "/admin" ? "default" : "outline"}
-                className={location === "/admin" ? "btn-primary" : "btn-secondary"}
+                onClick={() => navigate("/control")}
+                variant={isControlPage ? "default" : "outline"}
+                className={isControlPage ? "btn-primary" : "btn-secondary"}
               >
                 لوحة التحكم
               </Button>
               <Button
                 onClick={() => navigate("/reports")}
-                variant={location === "/reports" ? "default" : "outline"}
-                className={location === "/reports" ? "btn-primary" : "btn-secondary"}
+                variant={isReportsPage ? "default" : "outline"}
+                className={isReportsPage ? "btn-primary" : "btn-secondary"}
               >
                 التقارير
               </Button>
@@ -64,11 +64,11 @@ export function Header() {
               onClick={() => {
                 loginWithGithub().catch((error) => {
                   console.error("[Auth] GitHub login failed", error);
-                  if (!authReady) {
-                    alert("تسجيل الدخول غير مُفعّل بعد. أضف متغيرات Supabase Auth في Render.");
-                    return;
-                  }
-                  alert("تعذر بدء تسجيل الدخول حالياً");
+                  alert(
+                    error instanceof Error
+                      ? error.message
+                      : "تعذر بدء تسجيل الدخول. تأكد من إضافة SUPABASE_URL و SUPABASE_ANON_KEY في Render ثم أعد النشر."
+                  );
                 });
               }}
               className="btn-primary flex items-center gap-2"
