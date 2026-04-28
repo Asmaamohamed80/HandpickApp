@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: handpick-app
+    name: handpick-montaka-benaya
     env: node
     buildCommand: pnpm install --frozen-lockfile && pnpm build
     startCommand: pnpm start
