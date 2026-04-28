@@ -1,4 +1,4 @@
-import { signOutSupabase } from "@/lib/supabase";
+import { ensureSupabase, signOutSupabase } from "@/lib/supabase";
 import { trpc } from "@/lib/trpc";
 import { TRPCClientError } from "@trpc/client";
 import { useCallback, useEffect, useMemo } from "react";
@@ -23,6 +23,31 @@ export function useAuth(options?: UseAuthOptions) {
       utils.auth.me.setData(undefined, null);
     },
   });
+
+  useEffect(() => {
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
+
+    ensureSupabase().then((supabase) => {
+      if (cancelled || !supabase) return;
+
+      supabase.auth.getSession().then(({ data }) => {
+        if (!cancelled && data.session) {
+          void utils.auth.me.invalidate();
+        }
+      });
+
+      const { data } = supabase.auth.onAuthStateChange(() => {
+        void utils.auth.me.invalidate();
+      });
+      unsubscribe = () => data.subscription.unsubscribe();
+    });
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
+  }, [utils]);
 
   const logout = useCallback(async () => {
     try {

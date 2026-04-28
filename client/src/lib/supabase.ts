@@ -61,6 +61,7 @@ export async function ensureSupabase(): Promise<SupabaseClient | null> {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
+        detectSessionInUrl: true,
       },
     });
     return client;
